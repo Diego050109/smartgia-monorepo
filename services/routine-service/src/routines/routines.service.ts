@@ -1,0 +1,307 @@
+﻿import { Injectable, NotFoundException } from "@nestjs/common";
+import axios from "axios";
+import { InjectModel } from "@nestjs/mongoose";
+import { Model } from "mongoose";
+import { Routine, RoutineDocument } from "./routine.schema";
+import { CreateRoutineDto } from "./dto/create-routine.dto";
+import { UpdateRoutineDto } from "./dto/update-routine.dto";
+import { GenerateRoutineDto } from "./dto/generate-routine.dto";
+
+import { rmqClient } from "../rmq.client";
+
+@Injectable()
+export class RoutinesService {
+  constructor(@InjectModel(Routine.name) private routineModel: Model<RoutineDocument>) {}
+
+  async create(userId: string, dto: CreateRoutineDto) {
+    const doc = await this.routineModel.create({
+      userId,
+      title: dto.title,
+      goal: dto.goal,
+      level: dto.level,
+      exercises: dto.exercises ?? [],
+      active: dto.active ?? true,
+      // nuevos campos default para compat:
+      status: dto.active === false ? "ARCHIVED" : "ACTIVE",
+      period: "WEEKLY",
+      periodStart: new Date(),
+      periodEnd: new Date(),
+      days: [],
+    });
+    const routine = doc.toObject();
+
+    try {
+      rmqClient
+        .emit("routine.created", {
+          userId: routine.userId,
+          routineId: routine._id,
+          title: routine.title,
+          goal: routine.goal,
+          level: routine.level,
+        })
+        .subscribe();
+    } catch (e) {}
+
+    return routine;
+  }
+
+  async findMine(userId: string) {
+    return this.routineModel.find({ userId }).sort({ createdAt: -1 }).lean();
+  }
+
+  async findOneMine(userId: string, id: string) {
+    const doc = await this.routineModel.findOne({ _id: id, userId }).lean();
+    if (!doc) throw new NotFoundException("Routine not found");
+    return doc;
+  }
+
+  async updateMine(userId: string, id: string, dto: UpdateRoutineDto) {
+    const doc = await this.routineModel
+      .findOneAndUpdate({ _id: id, userId }, { $set: dto }, { new: true })
+      .lean();
+    if (!doc) throw new NotFoundException("Routine not found");
+    return doc;
+  }
+
+  async deleteMine(userId: string, id: string) {
+    const doc = await this.routineModel.findOneAndDelete({ _id: id, userId }).lean();
+    if (!doc) throw new NotFoundException("Routine not found");
+    return { deleted: true, id };
+  }
+
+  /* ============================
+     GENERATE ROUTINE (RULES)
+     ============================ */
+
+  private getWeekRange(now = new Date()) {
+    const d = new Date(now);
+    const day = d.getDay(); // 0 domingo ... 6 sábado
+    const diffToMonday = (day === 0 ? -6 : 1) - day;
+
+    const start = new Date(d);
+    start.setDate(d.getDate() + diffToMonday);
+    start.setHours(0, 0, 0, 0);
+
+    const end = new Date(start);
+    end.setDate(start.getDate() + 7);
+    return { start, end };
+  }
+
+  private prescription(goal?: string, level?: string) {
+    const g = goal ?? "hypertrophy";
+    const l = level ?? "beginner";
+
+    const restSeconds = g === "fat_loss" ? 45 : 90;
+    const sets = l === "beginner" ? 3 : l === "intermediate" ? 4 : 5;
+    const reps = g === "strength" ? "4-6" : g === "hypertrophy" ? "8-12" : "12-15";
+
+    return { restSeconds, sets, reps };
+  }
+
+  private exercisePool() {
+    return [
+      { id: "pushup", name: "Push-ups", tags: ["UPPER", "PUSH"] },
+      { id: "bench", name: "Bench Press", tags: ["UPPER", "PUSH"] },
+      { id: "row", name: "Row", tags: ["UPPER", "PULL"] },
+      { id: "pulldown", name: "Lat Pulldown", tags: ["UPPER", "PULL"] },
+      { id: "squat", name: "Squats", tags: ["LOWER"] },
+      { id: "deadlift", name: "Deadlift", tags: ["LOWER"] },
+      { id: "lunges", name: "Lunges", tags: ["LOWER"] },
+      { id: "plank", name: "Plank", tags: ["CORE"] },
+    ];
+  }
+
+  private pickByTags(tags: string[], count: number) {
+    const pool = this.exercisePool().filter((e) => tags.every((t) => e.tags.includes(t)));
+    const shuffled = [...pool].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, count);
+  }
+
+  private buildPlan(daysPerWeek: number) {
+    if (daysPerWeek <= 3) return ["FULL_BODY", "FULL_BODY", "FULL_BODY"];
+    if (daysPerWeek === 4) return ["UPPER", "LOWER", "UPPER", "LOWER"];
+    return ["UPPER", "LOWER", "PUSH", "PULL", "LEGS"];
+  }
+
+  private buildDay(focus: string, presc: { sets: number; reps: string; restSeconds: number }) {
+    let selected: { id: string; name: string }[] = [];
+
+    if (focus === "UPPER") {
+      selected = [
+        ...this.pickByTags(["UPPER", "PUSH"], 2),
+        ...this.pickByTags(["UPPER", "PULL"], 2),
+        ...this.pickByTags(["CORE"], 1),
+      ];
+    } else if (focus === "LOWER" || focus === "LEGS") {
+      selected = [...this.pickByTags(["LOWER"], 3), ...this.pickByTags(["CORE"], 1)];
+    } else if (focus === "PUSH") {
+      selected = [...this.pickByTags(["UPPER", "PUSH"], 4), ...this.pickByTags(["CORE"], 1)];
+    } else if (focus === "PULL") {
+      selected = [...this.pickByTags(["UPPER", "PULL"], 4), ...this.pickByTags(["CORE"], 1)];
+    } else {
+      selected = [
+        ...this.pickByTags(["UPPER"], 2),
+        ...this.pickByTags(["LOWER"], 2),
+        ...this.pickByTags(["CORE"], 1),
+      ];
+    }
+
+    return selected.map((ex) => ({
+      exerciseId: ex.id,
+      name: ex.name,
+      sets: presc.sets,
+      reps: presc.reps,
+      restSeconds: presc.restSeconds,
+    }));
+  }
+
+  private async fetchUserProfile(userId: string): Promise<{ goal: string; level: string }> {
+    const url = `http://user-service:4002/internal/profile/${userId}`;
+    const res = await axios.get(url, { timeout: 3000, headers: { "x-internal-token": process.env.INTERNAL_SERVICE_TOKEN || "dev-token" } });
+    const goal = res.data?.goal;
+    const level = res.data?.level;
+    if (!goal || !level) {
+      throw new NotFoundException("Complete your profile first (goal/level missing)");
+    }
+    return { goal, level };
+  }
+
+  async generateWeekly(userId: string, dto: GenerateRoutineDto) {
+    const period = dto.period ?? "WEEKLY";
+    const daysPerWeek = dto.daysPerWeek ?? 4;
+
+    const { start, end } = this.getWeekRange();
+
+    // idempotente: ya existe rutina activa de esta semana
+    const existing = await this.routineModel
+      .findOne({ userId, status: "ACTIVE", period, periodStart: start })
+      .lean();
+
+    if (existing) return existing;
+
+    // TODO siguiente paso: traer goal/level del user-service
+    const { goal, level } = await this.fetchUserProfile(userId);
+
+    const presc = this.prescription(goal, level);
+    const focuses = this.buildPlan(daysPerWeek);
+
+    const days = focuses.map((focus, idx) => ({
+      dayOfWeek: idx + 1,
+      focus,
+      exercises: this.buildDay(focus, presc),
+    }));
+
+    try {
+      const doc = await this.routineModel.create({
+        userId,
+        title: `Rutina Semanal (${goal}/${level})`,
+        goal,
+        level,
+        period,
+        status: "ACTIVE",
+        periodStart: start,
+        periodEnd: end,
+        days,
+        exercises: [],
+        active: true,
+      });
+
+      const routine = doc.toObject();
+
+      try {
+        rmqClient
+          .emit("routine.created", {
+            userId: routine.userId,
+            routineId: routine._id,
+            title: routine.title,
+            goal: routine.goal,
+            level: routine.level,
+          })
+          .subscribe();
+      } catch (e) {}
+
+      return routine;
+    } catch (e: any) {
+      // si chocó por índice único (concurrencia), devolvemos la existente
+      const again = await this.routineModel
+        .findOne({ userId, status: "ACTIVE", period, periodStart: start })
+        .lean();
+      if (again) return again;
+      throw e;
+    }
+  }
+  async getActiveWeekly(userId: string) {
+    const { start } = this.getWeekRange();
+    const routine = await this.routineModel
+      .findOne({ userId, status: "ACTIVE", period: "WEEKLY", periodStart: start })
+      .lean();
+    if (!routine) throw new NotFoundException("No active routine for this week");
+    return routine;
+  }
+
+  async getToday(userId: string) {
+    const routine = await this.getActiveWeekly(userId);
+
+    // JS: 0 domingo..6 sábado -> 1..7 (lunes..domingo)
+    const jsDay = new Date().getDay();
+    const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+    const today = (routine.days || []).find((d: any) => d.dayOfWeek === dayOfWeek);
+    if (!today) {
+      return {
+        routineId: routine._id,
+        dayOfWeek,
+        restDay: true,
+        message: "Rest day or no plan for today",
+      };
+    }
+
+    return {
+      routineId: routine._id,
+      dayOfWeek,
+      focus: today.focus,
+      exercises: today.exercises,
+    };
+  }
+
+
+  async completeToday(userId: string) {
+    const routine = await this.getActiveWeekly(userId);
+
+    const jsDay = new Date().getDay();
+    const dayOfWeek = jsDay === 0 ? 7 : jsDay;
+
+    // evita duplicados en completedDays
+    const updated = await this.routineModel.findOneAndUpdate(
+      { _id: routine._id },
+      { $addToSet: { completedDays: dayOfWeek } },
+      { new: true }
+    ).lean();
+
+    try {
+      rmqClient.emit("workout.completed", {
+        userId,
+        routineId: routine._id,
+        dayOfWeek,
+        completedAt: new Date().toISOString(),
+      }).subscribe();
+    } catch (e) {}
+
+    return {
+      routineId: routine._id,
+      dayOfWeek,
+      completed: true,
+      completedDays: updated?.completedDays ?? [],
+    };
+  }
+
+
+}
+
+
+
+
+
+
+
+

@@ -1,0 +1,44 @@
+﻿import { Body, Controller, Delete, Get, Headers, Param, Post, Put } from "@nestjs/common";
+import { RoutinesService } from "./routines.service";
+import { CreateRoutineDto } from "./dto/create-routine.dto";
+import { UpdateRoutineDto } from "./dto/update-routine.dto";
+import { GenerateRoutineDto } from "./dto/generate-routine.dto";
+
+@Controller()
+export class RoutinesController {
+  constructor(private readonly routinesService: RoutinesService) {}
+
+  private getUserId(headers: any) {
+    return headers["x-user-id"];
+  }
+
+  @Post("generate")
+  generate(@Headers() headers: any, @Body() dto: GenerateRoutineDto) {
+    return this.routinesService.generateWeekly(this.getUserId(headers), dto);
+  }
+
+  @Post("routines")
+  create(@Headers() headers: any, @Body() dto: CreateRoutineDto) {
+    return this.routinesService.create(this.getUserId(headers), dto);
+  }
+
+  @Get("routines")
+  findMine(@Headers() headers: any) {
+    return this.routinesService.findMine(this.getUserId(headers));
+  }
+
+  @Get("routines/:id")
+  findOne(@Headers() headers: any, @Param("id") id: string) {
+    return this.routinesService.findOneMine(this.getUserId(headers), id);
+  }
+
+  @Put("routines/:id")
+  update(@Headers() headers: any, @Param("id") id: string, @Body() dto: UpdateRoutineDto) {
+    return this.routinesService.updateMine(this.getUserId(headers), id, dto);
+  }
+
+  @Delete("routines/:id")
+  delete(@Headers() headers: any, @Param("id") id: string) {
+    return this.routinesService.deleteMine(this.getUserId(headers), id);
+  }
+}
