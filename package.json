@@ -11,6 +11,10 @@
   "license": "ISC",
   "type": "commonjs",
   "devDependencies": {
+    "@types/node": "^25.0.9",
     "turbo": "^2.7.3"
+  },
+  "dependencies": {
+    "axios": "^1.13.2"
   }
 }
