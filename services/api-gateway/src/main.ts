@@ -1,4 +1,4 @@
-﻿import { NestFactory } from "@nestjs/core";
+import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { createProxyMiddleware } from "http-proxy-middleware";
 import { authMiddleware } from "./middlewares/auth.middleware";
@@ -7,8 +7,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors({
-    origin: ["http://localhost:3000"],
-    credentials: true,
+    origin: "*",
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    allowedHeaders: "Content-Type, Authorization",
   });
 
   app.use(authMiddleware);
@@ -19,34 +20,29 @@ async function bootstrap() {
   const EXERCISE_TARGET = process.env.EXERCISE_SERVICE_URL || "http://exercise-service:4004";
   const ATTENDANCE_TARGET = process.env.ATTENDANCE_SERVICE_URL || "http://attendance-service:4005";
   const HISTORY_TARGET = process.env.HISTORY_SERVICE_URL || "http://history-service:4006";
+  const PROGRESS_TARGET = process.env.PROGRESS_SERVICE_URL || "http://progress-service:4007";
+  const NOTIFICATION_TARGET = process.env.NOTIFICATION_SERVICE_URL || "http://notification-service:4008";
+  const AI_TARGET = process.env.AI_SERVICE_URL || "http://ai-service:4009";
 
   const internalToken = process.env.INTERNAL_SERVICE_TOKEN || "";
 
-  const proxyKeepPrefix = (prefix: string, target: string) =>
-    createProxyMiddleware({
-      target,
-      changeOrigin: true,
-      pathRewrite: (path) => `${prefix}${path}`,
-      headers: internalToken ? { "x-internal-token": internalToken } : {},
-    });
-
-  const proxyStripPrefix = (target: string) =>
+  const proxy = (target: string) =>
     createProxyMiddleware({
       target,
       changeOrigin: true,
       headers: internalToken ? { "x-internal-token": internalToken } : {},
     });
 
-  app.use("/auth", proxyKeepPrefix("/auth", AUTH_TARGET));
-  app.use("/users", proxyStripPrefix(USER_TARGET));
-  app.use("/routines", proxyStripPrefix(ROUTINE_TARGET));
-  app.use("/exercises", proxyStripPrefix(EXERCISE_TARGET));
-  app.use("/attendance", proxyStripPrefix(ATTENDANCE_TARGET));
-  app.use("/history", proxyStripPrefix(HISTORY_TARGET));
+  app.use("/auth", proxy(AUTH_TARGET));
+  app.use("/users", proxy(USER_TARGET));
+  app.use("/routines", proxy(ROUTINE_TARGET));
+  app.use("/exercises", proxy(EXERCISE_TARGET));
+  app.use("/attendance", proxy(ATTENDANCE_TARGET));
+  app.use("/history", proxy(HISTORY_TARGET));
+  app.use("/progress", proxy(PROGRESS_TARGET));
+  app.use("/notification", proxy(NOTIFICATION_TARGET));
+  app.use("/ai", proxy(AI_TARGET));
 
-  const port = process.env.PORT ? Number(process.env.PORT) : 4000;
-  await app.listen(port);
-  console.log(`API Gateway running on http://localhost:${port}`);
+  await app.listen(4000);
 }
-
 bootstrap();
