@@ -1,0 +1,31 @@
+resource "aws_iam_role" "smartgia_ec2_role" {
+  name = "${local.prefix}-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [{
+      Effect    = "Allow",
+      Principal = { Service = "ec2.amazonaws.com" },
+      Action    = "sts:AssumeRole"
+    }]
+  })
+
+  tags = local.tags
+}
+
+resource "aws_iam_instance_profile" "smartgia_ec2_profile" {
+  name = "${local.prefix}-ec2-profile"
+  role = aws_iam_role.smartgia_ec2_role.name
+}
+
+# Permiso para PULL de ECR
+resource "aws_iam_role_policy_attachment" "ecr_readonly" {
+  role       = aws_iam_role.smartgia_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEC2ContainerRegistryReadOnly"
+}
+
+# (Opcional pero recomendado) para entrar por SSM sin bastion
+resource "aws_iam_role_policy_attachment" "ssm_core" {
+  role       = aws_iam_role.smartgia_ec2_role.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+}

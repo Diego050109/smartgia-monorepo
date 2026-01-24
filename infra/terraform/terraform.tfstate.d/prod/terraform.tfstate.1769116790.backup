@@ -1,0 +1,1592 @@
+{
+  "version": 4,
+  "terraform_version": "1.14.1",
+  "serial": 26,
+  "lineage": "42418417-9c0d-86ef-9a8b-092f96e6f90f",
+  "outputs": {
+    "bastion_elastic_ip": {
+      "value": "3.93.100.50",
+      "type": "string"
+    },
+    "bastion_public_ip": {
+      "value": "13.217.201.17",
+      "type": "string"
+    },
+    "private_subnets": {
+      "value": [
+        "subnet-0524f9baaf7dcc42b",
+        "subnet-0f3e0e65078acb7aa"
+      ],
+      "type": [
+        "tuple",
+        [
+          "string",
+          "string"
+        ]
+      ]
+    },
+    "public_subnets": {
+      "value": [
+        "subnet-0a419badb3dfaa223",
+        "subnet-08c875d62291e2464"
+      ],
+      "type": [
+        "tuple",
+        [
+          "string",
+          "string"
+        ]
+      ]
+    },
+    "region": {
+      "value": "us-east-1",
+      "type": "string"
+    },
+    "vpc_id": {
+      "value": "vpc-05a3609871ab7960a",
+      "type": "string"
+    }
+  },
+  "resources": [
+    {
+      "mode": "managed",
+      "type": "aws_autoscaling_group",
+      "name": "smartgia_asg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:autoscaling:us-east-1:843916523003:autoScalingGroup:39a4069f-6a6d-4bb8-b939-ef796254c6c0:autoScalingGroupName/smartgia-prod-asg",
+            "availability_zone_distribution": [
+              {
+                "capacity_distribution_strategy": "balanced-best-effort"
+              }
+            ],
+            "availability_zones": [
+              "us-east-1a",
+              "us-east-1b"
+            ],
+            "capacity_rebalance": false,
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "default",
+                "capacity_reservation_target": []
+              }
+            ],
+            "context": "",
+            "default_cooldown": 300,
+            "default_instance_warmup": 0,
+            "desired_capacity": 2,
+            "desired_capacity_type": "",
+            "enabled_metrics": null,
+            "force_delete": false,
+            "force_delete_warm_pool": false,
+            "health_check_grace_period": 60,
+            "health_check_type": "ELB",
+            "id": "smartgia-prod-asg",
+            "ignore_failed_scaling_activities": false,
+            "initial_lifecycle_hook": [],
+            "instance_maintenance_policy": [],
+            "instance_refresh": [],
+            "launch_configuration": "",
+            "launch_template": [
+              {
+                "id": "lt-077e4bea34fab829e",
+                "name": "smartgia-prod-lt-20260115003027097700000003",
+                "version": "$Latest"
+              }
+            ],
+            "load_balancers": [],
+            "max_instance_lifetime": 0,
+            "max_size": 4,
+            "metrics_granularity": "1Minute",
+            "min_elb_capacity": null,
+            "min_size": 2,
+            "mixed_instances_policy": [],
+            "name": "smartgia-prod-asg",
+            "name_prefix": "",
+            "placement_group": "",
+            "predicted_capacity": 0,
+            "protect_from_scale_in": false,
+            "service_linked_role_arn": "arn:aws:iam::843916523003:role/aws-service-role/autoscaling.amazonaws.com/AWSServiceRoleForAutoScaling",
+            "suspended_processes": null,
+            "tag": [
+              {
+                "key": "Env",
+                "propagate_at_launch": true,
+                "value": "prod"
+              },
+              {
+                "key": "Name",
+                "propagate_at_launch": true,
+                "value": "smartgia-prod-asg-instance"
+              },
+              {
+                "key": "Owner",
+                "propagate_at_launch": true,
+                "value": "SMARTGIA"
+              },
+              {
+                "key": "Project",
+                "propagate_at_launch": true,
+                "value": "smartgia"
+              }
+            ],
+            "target_group_arns": [
+              "arn:aws:elasticloadbalancing:us-east-1:843916523003:targetgroup/smartgia-prod-tg/3df6694bccf9ce03"
+            ],
+            "termination_policies": null,
+            "timeouts": null,
+            "traffic_source": [
+              {
+                "identifier": "arn:aws:elasticloadbalancing:us-east-1:843916523003:targetgroup/smartgia-prod-tg/3df6694bccf9ce03",
+                "type": "elbv2"
+              }
+            ],
+            "vpc_zone_identifier": [
+              "subnet-0524f9baaf7dcc42b",
+              "subnet-0f3e0e65078acb7aa"
+            ],
+            "wait_for_capacity_timeout": "10m",
+            "wait_for_elb_capacity": null,
+            "warm_pool": [],
+            "warm_pool_size": 0
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjo2MDAwMDAwMDAwMDAsInVwZGF0ZSI6NjAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_key_pair.bastion_key",
+            "aws_launch_template.smartgia_lt",
+            "aws_lb_target_group.tg",
+            "aws_security_group.alb_sg",
+            "aws_security_group.bastion_sg",
+            "aws_security_group.private_sg",
+            "aws_subnet.private_1",
+            "aws_subnet.private_2",
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_eip",
+      "name": "bastion_eip",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": null,
+            "allocation_id": "eipalloc-0a9a6521ff25148d5",
+            "arn": "arn:aws:ec2:us-east-1:843916523003:elastic-ip/eipalloc-0a9a6521ff25148d5",
+            "associate_with_private_ip": null,
+            "association_id": "",
+            "carrier_ip": "",
+            "customer_owned_ip": "",
+            "customer_owned_ipv4_pool": "",
+            "domain": "vpc",
+            "id": "eipalloc-0a9a6521ff25148d5",
+            "instance": "",
+            "ipam_pool_id": null,
+            "network_border_group": "us-east-1",
+            "network_interface": "",
+            "private_dns": null,
+            "private_ip": "",
+            "ptr_record": "",
+            "public_dns": "ec2-3-93-100-50.compute-1.amazonaws.com",
+            "public_ip": "3.93.100.50",
+            "public_ipv4_pool": "amazon",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-bastion-eip",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-bastion-eip",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc": true
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjoxODAwMDAwMDAwMDAsInJlYWQiOjkwMDAwMDAwMDAwMCwidXBkYXRlIjozMDAwMDAwMDAwMDB9fQ=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_eip",
+      "name": "nat_eip",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "address": null,
+            "allocation_id": "eipalloc-08bc43318c8b1c11e",
+            "arn": "arn:aws:ec2:us-east-1:843916523003:elastic-ip/eipalloc-08bc43318c8b1c11e",
+            "associate_with_private_ip": null,
+            "association_id": "",
+            "carrier_ip": "",
+            "customer_owned_ip": "",
+            "customer_owned_ipv4_pool": "",
+            "domain": "vpc",
+            "id": "eipalloc-08bc43318c8b1c11e",
+            "instance": "",
+            "ipam_pool_id": null,
+            "network_border_group": "us-east-1",
+            "network_interface": "",
+            "private_dns": null,
+            "private_ip": "",
+            "ptr_record": "",
+            "public_dns": "ec2-54-196-227-226.compute-1.amazonaws.com",
+            "public_ip": "54.196.227.226",
+            "public_ipv4_pool": "amazon",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-nat-eip",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-nat-eip",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc": true
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiZGVsZXRlIjoxODAwMDAwMDAwMDAsInJlYWQiOjkwMDAwMDAwMDAwMCwidXBkYXRlIjozMDAwMDAwMDAwMDB9fQ=="
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_eip_association",
+      "name": "bastion_eip_assoc",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allocation_id": "eipalloc-0a9a6521ff25148d5",
+            "allow_reassociation": null,
+            "id": "eipassoc-0c3bbbd550ef0fc94",
+            "instance_id": "i-0775baa1ec84ffa91",
+            "network_interface_id": "eni-0746924a0e551f94d",
+            "private_ip_address": "10.20.1.189",
+            "public_ip": "3.93.100.50"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_eip.bastion_eip",
+            "aws_instance.bastion",
+            "aws_key_pair.bastion_key",
+            "aws_security_group.bastion_sg",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_instance",
+      "name": "bastion",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "ami": "ami-0030e4319cbf4dbf2",
+            "arn": "arn:aws:ec2:us-east-1:843916523003:instance/i-0775baa1ec84ffa91",
+            "associate_public_ip_address": true,
+            "availability_zone": "us-east-1a",
+            "capacity_reservation_specification": [
+              {
+                "capacity_reservation_preference": "open",
+                "capacity_reservation_target": []
+              }
+            ],
+            "cpu_core_count": 1,
+            "cpu_options": [
+              {
+                "amd_sev_snp": "",
+                "core_count": 1,
+                "threads_per_core": 1
+              }
+            ],
+            "cpu_threads_per_core": 1,
+            "credit_specification": [
+              {
+                "cpu_credits": "standard"
+              }
+            ],
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_block_device": [],
+            "ebs_optimized": false,
+            "enable_primary_ipv6": null,
+            "enclave_options": [
+              {
+                "enabled": false
+              }
+            ],
+            "ephemeral_block_device": [],
+            "get_password_data": false,
+            "hibernation": false,
+            "host_id": "",
+            "host_resource_group_arn": null,
+            "iam_instance_profile": "",
+            "id": "i-0775baa1ec84ffa91",
+            "instance_initiated_shutdown_behavior": "stop",
+            "instance_lifecycle": "",
+            "instance_market_options": [],
+            "instance_state": "running",
+            "instance_type": "t2.micro",
+            "ipv6_address_count": 0,
+            "ipv6_addresses": [],
+            "key_name": "smartgia-prod-bastion-key",
+            "launch_template": [],
+            "maintenance_options": [
+              {
+                "auto_recovery": "default"
+              }
+            ],
+            "metadata_options": [
+              {
+                "http_endpoint": "enabled",
+                "http_protocol_ipv6": "disabled",
+                "http_put_response_hop_limit": 1,
+                "http_tokens": "optional",
+                "instance_metadata_tags": "disabled"
+              }
+            ],
+            "monitoring": false,
+            "network_interface": [],
+            "outpost_arn": "",
+            "password_data": "",
+            "placement_group": "",
+            "placement_partition_number": 0,
+            "primary_network_interface_id": "eni-0746924a0e551f94d",
+            "private_dns": "ip-10-20-1-189.ec2.internal",
+            "private_dns_name_options": [
+              {
+                "enable_resource_name_dns_a_record": false,
+                "enable_resource_name_dns_aaaa_record": false,
+                "hostname_type": "ip-name"
+              }
+            ],
+            "private_ip": "10.20.1.189",
+            "public_dns": "ec2-13-217-201-17.compute-1.amazonaws.com",
+            "public_ip": "13.217.201.17",
+            "root_block_device": [
+              {
+                "delete_on_termination": true,
+                "device_name": "/dev/sda1",
+                "encrypted": false,
+                "iops": 100,
+                "kms_key_id": "",
+                "tags": {},
+                "tags_all": {},
+                "throughput": 0,
+                "volume_id": "vol-0467d7b8a24502761",
+                "volume_size": 8,
+                "volume_type": "gp2"
+              }
+            ],
+            "secondary_private_ips": [],
+            "security_groups": [],
+            "source_dest_check": true,
+            "spot_instance_request_id": "",
+            "subnet_id": "subnet-0a419badb3dfaa223",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tenancy": "default",
+            "timeouts": null,
+            "user_data": null,
+            "user_data_base64": null,
+            "user_data_replace_on_change": false,
+            "volume_tags": null,
+            "vpc_security_group_ids": [
+              "sg-0f0d6add2444fefe4"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMCwicmVhZCI6OTAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_key_pair.bastion_key",
+            "aws_security_group.bastion_sg",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_internet_gateway",
+      "name": "igw",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:internet-gateway/igw-0c593c29e9eb1b04d",
+            "id": "igw-0c593c29e9eb1b04d",
+            "owner_id": "843916523003",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-igw",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-igw",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjoxMjAwMDAwMDAwMDAwLCJkZWxldGUiOjEyMDAwMDAwMDAwMDAsInVwZGF0ZSI6MTIwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_key_pair",
+      "name": "bastion_key",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:key-pair/smartgia-prod-bastion-key",
+            "fingerprint": "ee:1a:08:40:30:c4:b5:17:5b:6f:5f:13:31:d5:61:97",
+            "id": "smartgia-prod-bastion-key",
+            "key_name": "smartgia-prod-bastion-key",
+            "key_name_prefix": "",
+            "key_pair_id": "key-0bdcfa2f6b70e5526",
+            "key_type": "rsa",
+            "public_key": "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDTU2tyQ99ES1tutziQukUA5G5KLUcehO0Tny8hLPmmOlw/rL1zkflvqVJnukXtw8Rc0hH9Mds+Tpg+T6QRB3idHzWtujeOvyzeE/ahtB0xbimiuOzjKC2EpHjqwQ9JcDuGs+/N7UobO5uWt6+7yBHtypT8OOk4A8L5VN810sparxAj9UwkvOvAsHD5ldXB5mMsjPnkWNPRHE4XVBYhCBpv/UOlzuDnRK+vD3svjKMYAXgi8U58CJ+f4vD09+jvDUYPfoaCBfydratViX1lea5ti2KRAoZk+dZM0RXCJiNxzBDT7ML0KkSOXqJQCgsil4X5KEp92na1PcWrh6cEeVL9C3Xo/l1jcJzEs3y6Z9dNWR+BXxC6msYAqLuoIqNFtpzevOiByfUGaS8HKCUSJnXXaizFHG7HDsO9nZXXJ4lM1w3qfIMQQGDuozfyHibuUsjKFnzAmJKCo4kQuaz39jFm/kX+mhpZphroDN8aCKN+xtdK8ywmyq2RYFbHpM4xmEAyh4rHF/nb/wTrFPOixJDjhR/zULnsVunUzLA1TTLY9ZVSLje4w17bUAHsWsif4bsyJpVgdMYga3TWFEj6yed/RqnlgH7xcC5FzayxGpEek+lPJ7NUg8dxub/VJZFa+RmnyirHr4i7fhnmUnmSNXP2s+mGcHj1VE6is4/H0QbcVw== usuario@LAPTOP-A1O95KFV",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion-key",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion-key",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_launch_template",
+      "name": "smartgia_lt",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:launch-template/lt-077e4bea34fab829e",
+            "block_device_mappings": [],
+            "capacity_reservation_specification": [],
+            "cpu_options": [],
+            "credit_specification": [],
+            "default_version": 1,
+            "description": "",
+            "disable_api_stop": false,
+            "disable_api_termination": false,
+            "ebs_optimized": "",
+            "elastic_gpu_specifications": [],
+            "elastic_inference_accelerator": [],
+            "enclave_options": [],
+            "hibernation_options": [],
+            "iam_instance_profile": [],
+            "id": "lt-077e4bea34fab829e",
+            "image_id": "ami-0030e4319cbf4dbf2",
+            "instance_initiated_shutdown_behavior": "",
+            "instance_market_options": [],
+            "instance_requirements": [],
+            "instance_type": "t2.micro",
+            "kernel_id": "",
+            "key_name": "smartgia-prod-bastion-key",
+            "latest_version": 1,
+            "license_specification": [],
+            "maintenance_options": [],
+            "metadata_options": [],
+            "monitoring": [],
+            "name": "smartgia-prod-lt-20260115003027097700000003",
+            "name_prefix": "smartgia-prod-lt-",
+            "network_interfaces": [],
+            "placement": [],
+            "private_dns_name_options": [],
+            "ram_disk_id": "",
+            "security_group_names": null,
+            "tag_specifications": [
+              {
+                "resource_type": "instance",
+                "tags": {
+                  "Env": "prod",
+                  "Name": "smartgia-prod-asg-instance",
+                  "Owner": "SMARTGIA",
+                  "Project": "smartgia"
+                }
+              }
+            ],
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-launch-template",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-launch-template",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "update_default_version": null,
+            "user_data": "IyEvYmluL2Jhc2gNCnN1ZG8gYXB0IHVwZGF0ZSAteQ0Kc3VkbyBhcHQgaW5zdGFsbCBuZ2lueCAteQ0KDQpQUklWQVRFX0lQPSQoaG9zdG5hbWUgLUkgfCBhd2sgJ3twcmludCAkMX0nKQ0KDQpzdWRvIHRlZSAvdmFyL3d3dy9odG1sL2luZGV4Lmh0bWwgPiAvZGV2L251bGwgPDxIVE1MDQo8IURPQ1RZUEUgaHRtbD4NCjxodG1sIGxhbmc9ImVuIj4NCjxoZWFkPg0KICA8bWV0YSBjaGFyc2V0PSJVVEYtOCI+DQogIDx0aXRsZT5TTUFSVEdJQSAtIEF1dG8gU2NhbGluZzwvdGl0bGU+DQogIDxzdHlsZT4NCiAgICBib2R5IHsNCiAgICAgIGZvbnQtZmFtaWx5OiBBcmlhbCwgc2Fucy1zZXJpZjsNCiAgICAgIGJhY2tncm91bmQ6ICNmNWY3ZmE7DQogICAgICB0ZXh0LWFsaWduOiBjZW50ZXI7DQogICAgICBwYWRkaW5nLXRvcDogODBweDsNCiAgICB9DQogICAgLmNhcmQgew0KICAgICAgYmFja2dyb3VuZDogd2hpdGU7DQogICAgICB3aWR0aDogNTAwcHg7DQogICAgICBtYXJnaW46IGF1dG87DQogICAgICBwYWRkaW5nOiA0MHB4Ow0KICAgICAgYm9yZGVyLXJhZGl1czogMTVweDsNCiAgICAgIGJveC1zaGFkb3c6IDBweCA1cHggMjBweCByZ2JhKDAsMCwwLDAuMik7DQogICAgfQ0KICAgIGgxIHsNCiAgICAgIGNvbG9yOiAjMmMzZTUwOw0KICAgICAgZm9udC1zaXplOiAzMnB4Ow0KICAgICAgbWFyZ2luLWJvdHRvbTogMTBweDsNCiAgICB9DQogICAgcCB7DQogICAgICBmb250LXNpemU6IDE4cHg7DQogICAgICBjb2xvcjogIzU1NTsNCiAgICB9DQogICAgLmlwIHsNCiAgICAgIGZvbnQtc2l6ZTogMjJweDsNCiAgICAgIGZvbnQtd2VpZ2h0OiBib2xkOw0KICAgICAgY29sb3I6ICMyN2FlNjA7DQogICAgICBtYXJnaW4tdG9wOiAxNXB4Ow0KICAgIH0NCiAgICAuZm9vdGVyIHsNCiAgICAgIG1hcmdpbi10b3A6IDMwcHg7DQogICAgICBmb250LXNpemU6IDE0cHg7DQogICAgICBjb2xvcjogIzg4ODsNCiAgICB9DQogIDwvc3R5bGU+DQo8L2hlYWQ+DQo8Ym9keT4NCiAgPGRpdiBjbGFzcz0iY2FyZCI+DQogICAgPGgxPlNNQVJUR0lBIEFVVE8gU0NBTElORyBJTlNUQU5DRTwvaDE+DQogICAgPHA+VGhpcyBpbnN0YW5jZSBpcyBydW5uaW5nIHN1Y2Nlc3NmdWxseSBpbnNpZGUgeW91ciBBdXRvIFNjYWxpbmcgR3JvdXAuPC9wPg0KICAgIDxkaXYgY2xhc3M9ImlwIj5Qcml2YXRlIElQOiAkUFJJVkFURV9JUDwvZGl2Pg0KICAgIDxkaXYgY2xhc3M9ImZvb3RlciI+QVdTICsgVGVycmFmb3JtIHwgSGlnaCBBdmFpbGFiaWxpdHkgUHJvamVjdDwvZGl2Pg0KICA8L2Rpdj4NCjwvYm9keT4NCjwvaHRtbD4NCkhUTUwNCg0Kc3VkbyBzeXN0ZW1jdGwgZW5hYmxlIG5naW54DQpzdWRvIHN5c3RlbWN0bCByZXN0YXJ0IG5naW54DQo=",
+            "vpc_security_group_ids": [
+              "sg-0e0cbb4f860a63d74"
+            ]
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_key_pair.bastion_key",
+            "aws_security_group.alb_sg",
+            "aws_security_group.bastion_sg",
+            "aws_security_group.private_sg",
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_lb",
+      "name": "alb",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "status": "tainted",
+          "schema_version": 0,
+          "attributes": {
+            "access_logs": [],
+            "arn": null,
+            "arn_suffix": null,
+            "client_keep_alive": 3600,
+            "connection_logs": [],
+            "customer_owned_ipv4_pool": null,
+            "desync_mitigation_mode": "defensive",
+            "dns_name": null,
+            "dns_record_client_routing_policy": null,
+            "drop_invalid_header_fields": false,
+            "enable_cross_zone_load_balancing": null,
+            "enable_deletion_protection": false,
+            "enable_http2": true,
+            "enable_tls_version_and_cipher_suite_headers": false,
+            "enable_waf_fail_open": false,
+            "enable_xff_client_port": false,
+            "enable_zonal_shift": false,
+            "enforce_security_group_inbound_rules_on_private_link_traffic": null,
+            "id": "arn:aws:elasticloadbalancing:us-east-1:843916523003:loadbalancer/app/smartgia-prod-alb/b6f58e296e949d85",
+            "idle_timeout": 60,
+            "internal": false,
+            "ip_address_type": null,
+            "ipam_pools": [],
+            "load_balancer_type": "application",
+            "minimum_load_balancer_capacity": [],
+            "name": "smartgia-prod-alb",
+            "name_prefix": null,
+            "preserve_host_header": false,
+            "security_groups": [
+              "sg-0cf68842fe1c2e43b"
+            ],
+            "subnet_mapping": [],
+            "subnets": [
+              "subnet-08c875d62291e2464",
+              "subnet-0a419badb3dfaa223"
+            ],
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-alb",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-alb",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": null,
+            "xff_header_processing_mode": "append",
+            "zone_id": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6NjAwMDAwMDAwMDAwLCJ1cGRhdGUiOjYwMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_security_group.alb_sg",
+            "aws_subnet.public_1",
+            "aws_subnet.public_2",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_lb_target_group",
+      "name": "tg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:elasticloadbalancing:us-east-1:843916523003:targetgroup/smartgia-prod-tg/3df6694bccf9ce03",
+            "arn_suffix": "targetgroup/smartgia-prod-tg/3df6694bccf9ce03",
+            "connection_termination": null,
+            "deregistration_delay": "30",
+            "health_check": [
+              {
+                "enabled": true,
+                "healthy_threshold": 2,
+                "interval": 30,
+                "matcher": "200-399",
+                "path": "/",
+                "port": "traffic-port",
+                "protocol": "HTTP",
+                "timeout": 5,
+                "unhealthy_threshold": 2
+              }
+            ],
+            "id": "arn:aws:elasticloadbalancing:us-east-1:843916523003:targetgroup/smartgia-prod-tg/3df6694bccf9ce03",
+            "ip_address_type": "ipv4",
+            "lambda_multi_value_headers_enabled": false,
+            "load_balancer_arns": [],
+            "load_balancing_algorithm_type": "round_robin",
+            "load_balancing_anomaly_mitigation": "off",
+            "load_balancing_cross_zone_enabled": "use_load_balancer_configuration",
+            "name": "smartgia-prod-tg",
+            "name_prefix": "",
+            "port": 80,
+            "preserve_client_ip": null,
+            "protocol": "HTTP",
+            "protocol_version": "HTTP1",
+            "proxy_protocol_v2": false,
+            "slow_start": 0,
+            "stickiness": [
+              {
+                "cookie_duration": 86400,
+                "cookie_name": "",
+                "enabled": false,
+                "type": "lb_cookie"
+              }
+            ],
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-tg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-tg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "target_failover": [
+              {
+                "on_deregistration": null,
+                "on_unhealthy": null
+              }
+            ],
+            "target_group_health": [
+              {
+                "dns_failover": [
+                  {
+                    "minimum_healthy_targets_count": "1",
+                    "minimum_healthy_targets_percentage": "off"
+                  }
+                ],
+                "unhealthy_state_routing": [
+                  {
+                    "minimum_healthy_targets_count": 1,
+                    "minimum_healthy_targets_percentage": "off"
+                  }
+                ]
+              }
+            ],
+            "target_health_state": [
+              {
+                "enable_unhealthy_connection_termination": null,
+                "unhealthy_draining_interval": null
+              }
+            ],
+            "target_type": "instance",
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "bnVsbA==",
+          "dependencies": [
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_nat_gateway",
+      "name": "nat",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "allocation_id": "eipalloc-08bc43318c8b1c11e",
+            "association_id": "eipassoc-0f63648a45de695b8",
+            "connectivity_type": "public",
+            "id": "nat-0a6500edf84a53528",
+            "network_interface_id": "eni-0b5ea63c64d34f0bc",
+            "private_ip": "10.20.1.17",
+            "public_ip": "54.196.227.226",
+            "secondary_allocation_ids": null,
+            "secondary_private_ip_address_count": 0,
+            "secondary_private_ip_addresses": [],
+            "subnet_id": "subnet-0a419badb3dfaa223",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-nat",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-nat",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTgwMDAwMDAwMDAwMCwidXBkYXRlIjo2MDAwMDAwMDAwMDB9fQ==",
+          "dependencies": [
+            "aws_eip.nat_eip",
+            "aws_internet_gateway.igw",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table",
+      "name": "private",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:route-table/rtb-00587c934efbb1e6b",
+            "id": "rtb-00587c934efbb1e6b",
+            "owner_id": "843916523003",
+            "propagating_vgws": [],
+            "route": [
+              {
+                "carrier_gateway_id": "",
+                "cidr_block": "0.0.0.0/0",
+                "core_network_arn": "",
+                "destination_prefix_list_id": "",
+                "egress_only_gateway_id": "",
+                "gateway_id": "",
+                "ipv6_cidr_block": "",
+                "local_gateway_id": "",
+                "nat_gateway_id": "nat-0a6500edf84a53528",
+                "network_interface_id": "",
+                "transit_gateway_id": "",
+                "vpc_endpoint_id": "",
+                "vpc_peering_connection_id": ""
+              }
+            ],
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-rt",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-rt",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_eip.nat_eip",
+            "aws_internet_gateway.igw",
+            "aws_nat_gateway.nat",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table",
+      "name": "public",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:route-table/rtb-054e5a36a26e4326e",
+            "id": "rtb-054e5a36a26e4326e",
+            "owner_id": "843916523003",
+            "propagating_vgws": [],
+            "route": [
+              {
+                "carrier_gateway_id": "",
+                "cidr_block": "0.0.0.0/0",
+                "core_network_arn": "",
+                "destination_prefix_list_id": "",
+                "egress_only_gateway_id": "",
+                "gateway_id": "igw-0c593c29e9eb1b04d",
+                "ipv6_cidr_block": "",
+                "local_gateway_id": "",
+                "nat_gateway_id": "",
+                "network_interface_id": "",
+                "transit_gateway_id": "",
+                "vpc_endpoint_id": "",
+                "vpc_peering_connection_id": ""
+              }
+            ],
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-rt",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-rt",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.igw",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "private_1",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-01a3ddcd206cd2ec3",
+            "route_table_id": "rtb-00587c934efbb1e6b",
+            "subnet_id": "subnet-0524f9baaf7dcc42b",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_eip.nat_eip",
+            "aws_internet_gateway.igw",
+            "aws_nat_gateway.nat",
+            "aws_route_table.private",
+            "aws_subnet.private_1",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "private_2",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-063c1101f4fb0b31c",
+            "route_table_id": "rtb-00587c934efbb1e6b",
+            "subnet_id": "subnet-0f3e0e65078acb7aa",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_eip.nat_eip",
+            "aws_internet_gateway.igw",
+            "aws_nat_gateway.nat",
+            "aws_route_table.private",
+            "aws_subnet.private_2",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "public_1",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-07a02c686362f13ab",
+            "route_table_id": "rtb-054e5a36a26e4326e",
+            "subnet_id": "subnet-0a419badb3dfaa223",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.igw",
+            "aws_route_table.public",
+            "aws_subnet.public_1",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_route_table_association",
+      "name": "public_2",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 0,
+          "attributes": {
+            "gateway_id": "",
+            "id": "rtbassoc-0ad0b9c14b1d703ec",
+            "route_table_id": "rtb-054e5a36a26e4326e",
+            "subnet_id": "subnet-08c875d62291e2464",
+            "timeouts": null
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjozMDAwMDAwMDAwMDAsImRlbGV0ZSI6MzAwMDAwMDAwMDAwLCJ1cGRhdGUiOjEyMDAwMDAwMDAwMH19",
+          "dependencies": [
+            "aws_internet_gateway.igw",
+            "aws_route_table.public",
+            "aws_subnet.public_2",
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "alb_sg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:security-group/sg-0cf68842fe1c2e43b",
+            "description": "Allow HTTP/HTTPS inbound traffic",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Allow all outbound",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-0cf68842fe1c2e43b",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "HTTP",
+                "from_port": 80,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 80
+              },
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "HTTPS",
+                "from_port": 443,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 443
+              }
+            ],
+            "name": "smartgia-alb-sg",
+            "name_prefix": "",
+            "owner_id": "843916523003",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-alb-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-alb-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "bastion_sg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:security-group/sg-0f0d6add2444fefe4",
+            "description": "SSH access to Bastion Host",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Allow all outbound",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-0f0d6add2444fefe4",
+            "ingress": [
+              {
+                "cidr_blocks": [
+                  "18.206.107.24/29",
+                  "18.206.107.32/29",
+                  "18.206.107.40/29",
+                  "18.206.107.48/29"
+                ],
+                "description": "SSH from EC2 Instance Connect us-east-1",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              },
+              {
+                "cidr_blocks": [
+                  "181.199.46.135/32"
+                ],
+                "description": "SSH from my IP (secondary)",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              },
+              {
+                "cidr_blocks": [
+                  "181.199.58.240/32"
+                ],
+                "description": "SSH from my IP (current)",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [],
+                "self": false,
+                "to_port": 22
+              }
+            ],
+            "name": "smartgia-prod-bastion-sg",
+            "name_prefix": "",
+            "owner_id": "843916523003",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-bastion-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_security_group",
+      "name": "private_sg",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:security-group/sg-0e0cbb4f860a63d74",
+            "description": "Allow SSH from Bastion + HTTP from ALB",
+            "egress": [
+              {
+                "cidr_blocks": [
+                  "0.0.0.0/0"
+                ],
+                "description": "Allow all outbound",
+                "from_port": 0,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "-1",
+                "security_groups": [],
+                "self": false,
+                "to_port": 0
+              }
+            ],
+            "id": "sg-0e0cbb4f860a63d74",
+            "ingress": [
+              {
+                "cidr_blocks": [],
+                "description": "HTTP from ALB",
+                "from_port": 80,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [
+                  "sg-0cf68842fe1c2e43b"
+                ],
+                "self": false,
+                "to_port": 80
+              },
+              {
+                "cidr_blocks": [],
+                "description": "SSH from Bastion",
+                "from_port": 22,
+                "ipv6_cidr_blocks": [],
+                "prefix_list_ids": [],
+                "protocol": "tcp",
+                "security_groups": [
+                  "sg-0f0d6add2444fefe4"
+                ],
+                "self": false,
+                "to_port": 22
+              }
+            ],
+            "name": "smartgia-prod-private-sg-20260115003023408900000002",
+            "name_prefix": "smartgia-prod-private-sg-",
+            "owner_id": "843916523003",
+            "revoke_rules_on_delete": false,
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-sg",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6OTAwMDAwMDAwMDAwfSwic2NoZW1hX3ZlcnNpb24iOiIxIn0=",
+          "dependencies": [
+            "aws_security_group.alb_sg",
+            "aws_security_group.bastion_sg",
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "private_1",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:subnet/subnet-0524f9baaf7dcc42b",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "us-east-1a",
+            "availability_zone_id": "use1-az4",
+            "cidr_block": "10.20.11.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-0524f9baaf7dcc42b",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_native": false,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": false,
+            "outpost_arn": "",
+            "owner_id": "843916523003",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-1",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-1",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "private_2",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:subnet/subnet-0f3e0e65078acb7aa",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "us-east-1b",
+            "availability_zone_id": "use1-az6",
+            "cidr_block": "10.20.12.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-0f3e0e65078acb7aa",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_native": false,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": false,
+            "outpost_arn": "",
+            "owner_id": "843916523003",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-2",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-private-2",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ],
+          "create_before_destroy": true
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "public_1",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:subnet/subnet-0a419badb3dfaa223",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "us-east-1a",
+            "availability_zone_id": "use1-az4",
+            "cidr_block": "10.20.1.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-0a419badb3dfaa223",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_native": false,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": true,
+            "outpost_arn": "",
+            "owner_id": "843916523003",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-1",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-1",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_subnet",
+      "name": "public_2",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:subnet/subnet-08c875d62291e2464",
+            "assign_ipv6_address_on_creation": false,
+            "availability_zone": "us-east-1b",
+            "availability_zone_id": "use1-az6",
+            "cidr_block": "10.20.2.0/24",
+            "customer_owned_ipv4_pool": "",
+            "enable_dns64": false,
+            "enable_lni_at_device_index": 0,
+            "enable_resource_name_dns_a_record_on_launch": false,
+            "enable_resource_name_dns_aaaa_record_on_launch": false,
+            "id": "subnet-08c875d62291e2464",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_association_id": "",
+            "ipv6_native": false,
+            "map_customer_owned_ip_on_launch": false,
+            "map_public_ip_on_launch": true,
+            "outpost_arn": "",
+            "owner_id": "843916523003",
+            "private_dns_hostname_type_on_launch": "ip-name",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-2",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-public-2",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "timeouts": null,
+            "vpc_id": "vpc-05a3609871ab7960a"
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJlMmJmYjczMC1lY2FhLTExZTYtOGY4OC0zNDM2M2JjN2M0YzAiOnsiY3JlYXRlIjo2MDAwMDAwMDAwMDAsImRlbGV0ZSI6MTIwMDAwMDAwMDAwMH0sInNjaGVtYV92ZXJzaW9uIjoiMSJ9",
+          "dependencies": [
+            "aws_vpc.main"
+          ]
+        }
+      ]
+    },
+    {
+      "mode": "managed",
+      "type": "aws_vpc",
+      "name": "main",
+      "provider": "provider[\"registry.terraform.io/hashicorp/aws\"]",
+      "instances": [
+        {
+          "schema_version": 1,
+          "attributes": {
+            "arn": "arn:aws:ec2:us-east-1:843916523003:vpc/vpc-05a3609871ab7960a",
+            "assign_generated_ipv6_cidr_block": false,
+            "cidr_block": "10.20.0.0/16",
+            "default_network_acl_id": "acl-01294242ff80d5aba",
+            "default_route_table_id": "rtb-0e553cd26e20c61a6",
+            "default_security_group_id": "sg-0ecba782ab92eec90",
+            "dhcp_options_id": "dopt-0b7837346ffe70700",
+            "enable_dns_hostnames": true,
+            "enable_dns_support": true,
+            "enable_network_address_usage_metrics": false,
+            "id": "vpc-05a3609871ab7960a",
+            "instance_tenancy": "default",
+            "ipv4_ipam_pool_id": null,
+            "ipv4_netmask_length": null,
+            "ipv6_association_id": "",
+            "ipv6_cidr_block": "",
+            "ipv6_cidr_block_network_border_group": "",
+            "ipv6_ipam_pool_id": "",
+            "ipv6_netmask_length": 0,
+            "main_route_table_id": "rtb-0e553cd26e20c61a6",
+            "owner_id": "843916523003",
+            "tags": {
+              "Env": "prod",
+              "Name": "smartgia-prod-vpc",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            },
+            "tags_all": {
+              "Env": "prod",
+              "Name": "smartgia-prod-vpc",
+              "Owner": "SMARTGIA",
+              "Project": "smartgia"
+            }
+          },
+          "sensitive_attributes": [],
+          "identity_schema_version": 0,
+          "private": "eyJzY2hlbWFfdmVyc2lvbiI6IjEifQ==",
+          "create_before_destroy": true
+        }
+      ]
+    }
+  ],
+  "check_results": null
+}
