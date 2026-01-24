@@ -4,7 +4,9 @@ import jwt from "jsonwebtoken";
 const PUBLIC_PATHS = [/^\/health/, /^\/auth(\/|$)/];
 
 export function authMiddleware(req: Request, res: Response, next: NextFunction) {
-  if (PUBLIC_PATHS.some((re) => re.test(req.path))) return next();
+  
+  if (req.method === "OPTIONS") return next();
+if (PUBLIC_PATHS.some((re) => re.test(req.path))) return next();
 
   const auth = req.headers["authorization"];
   if (!auth?.startsWith("Bearer ")) {
@@ -30,3 +32,4 @@ export function authMiddleware(req: Request, res: Response, next: NextFunction) 
     return res.status(401).json({ message: "Unauthorized" });
   }
 }
+

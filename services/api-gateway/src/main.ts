@@ -1,18 +1,43 @@
-import { NestFactory } from "@nestjs/core";
+﻿import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { createProxyMiddleware } from "http-proxy-middleware";
+
+import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
 import { authMiddleware } from "./middlewares/auth.middleware";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  app.enableCors({
-    origin: "*",
-    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
-    allowedHeaders: "Content-Type, Authorization",
-  });
+  
+  // Swagger (API Docs)
+  const config = new DocumentBuilder()
+    .setTitle("smartGIA API Gateway")
+    .setDescription("Docs del API Gateway (proxy a microservicios)")
+    .setVersion("1.0")
+    .addBearerAuth()
+    .build();
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup("docs", app, document);
+app.enableCors({
+  origin: true,
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization"],
+  methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE", "OPTIONS"],
+});
 
-  app.use(authMiddleware);
+/** CORS MANUAL (dev) */
+app.use((req: any, res: any, next: any) => {
+  const origin = req.headers.origin;
+  if (origin) res.header("Access-Control-Allow-Origin", origin);
+  res.header("Vary", "Origin");
+  res.header("Access-Control-Allow-Credentials", "true");
+  res.header("Access-Control-Allow-Headers", "Content-Type, Authorization");
+  res.header("Access-Control-Allow-Methods", "GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS");
+  if (req.method === "OPTIONS") return res.sendStatus(204);
+  next();
+});
+
+app.use(authMiddleware);
 
   const AUTH_TARGET = process.env.AUTH_SERVICE_URL || "http://auth-service:4001";
   const USER_TARGET = process.env.USER_SERVICE_URL || "http://user-service:4002";
@@ -33,7 +58,17 @@ async function bootstrap() {
       headers: internalToken ? { "x-internal-token": internalToken } : {},
     });
 
-  app.use("/auth", proxy(AUTH_TARGET));
+  // ✅ FIX: cuando montas en /auth, express recorta el prefijo.
+  // Entonces aquí re-agregamos /auth para que al auth-service le llegue /auth/register.
+  const authProxy = createProxyMiddleware({
+    target: AUTH_TARGET,
+    changeOrigin: true,
+    headers: internalToken ? { "x-internal-token": internalToken } : {},
+    pathRewrite: (path) => "/auth" + path, // /register -> /auth/register
+  });
+
+app.use("/auth", authProxy);
+
   app.use("/users", proxy(USER_TARGET));
   app.use("/routines", proxy(ROUTINE_TARGET));
   app.use("/exercises", proxy(EXERCISE_TARGET));
@@ -46,3 +81,11 @@ async function bootstrap() {
   await app.listen(4000);
 }
 bootstrap();
+
+
+
+
+
+
+
+
